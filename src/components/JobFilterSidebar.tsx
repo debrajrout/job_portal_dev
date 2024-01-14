@@ -5,11 +5,21 @@ import Select from "./ui/select";
 import prisma from "@/lib/prisma";
 import { Button } from "./ui/button";
 import { jobFilterSchema } from "@/lib/validation";
+import { redirect } from "next/navigation";
 
 async function filterJobs(formData: FormData) {
   "use server";
+
   const values = Object.fromEntries(formData.entries());
+
   const { q, type, location, remote } = jobFilterSchema.parse(values);
+  const searchParams = new URLSearchParams({
+    ...(q && { q: q.trim() }),
+    ...(type && { type }),
+    ...(location && { location }),
+    ...(remote && { remote: "true" }),
+  });
+  redirect(`/?${searchParams.toString()}`);
 }
 
 export default async function JobFilterSidebar() {
@@ -31,7 +41,7 @@ export default async function JobFilterSidebar() {
         <div className="space-y-4 ">
           <div className="flex flex-col gap-2">
             <Label htmlFor="q">Search</Label>
-            <Input id="q" placeholder="Title, Company, etc." />
+            <Input id="q" name="q" placeholder="Title, Company, etc." />
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="type">Type</Label>
